@@ -1,8 +1,11 @@
 package your.schedule;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -32,10 +35,7 @@ public class MainActivity extends AppCompatActivity
 
         displayMonth = Calendar.getInstance();
 
-        GridView gv = (GridView) findViewById(R.id.gridView);
-       // BaseAdapter adapter = new MyAdapter(this, R.layout.grid_item, getArrayList());
-        BaseAdapter adapter = new MyAdapter(this, android.R.layout.simple_list_item_1, getArrayList());
-        gv.setAdapter(adapter);
+        fragmentsInit();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -56,32 +56,25 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private ArrayList<String> getArrayList() {
-        ArrayList<String> arrayList = new ArrayList<>();
-        Calendar calendar = (Calendar) displayMonth.clone();
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        //у америкосов неделя начинается с воскресенья
-        if (dayOfWeek == 1) {
-            dayOfWeek = 7;
-        } dayOfWeek = dayOfWeek - 1;
+    private void fragmentsInit() {
+        FragmentManager myFragmentManager = getSupportFragmentManager();
 
-        for (int i = 0; i < dayOfWeek - 1; i++) {
-            arrayList.add(i, "");
+        MonthFragment fragment1 = new MonthFragment();
+        ListEventsFragment fragment2 = new ListEventsFragment();
+
+        //  Bundle bundle = new Bundle();
+        // fragment1.setArguments(bundle);
+
+        FragmentTransaction fragmentTransaction = myFragmentManager
+                .beginTransaction();
+        fragmentTransaction.add(R.id.fragment1, fragment1);
+        Configuration configuration = getResources().getConfiguration();
+
+        if (configuration.smallestScreenWidthDp >= 600) {
+            fragmentTransaction.add(R.id.fragment2, fragment2);
         }
 
-        calendar.add(Calendar.MONTH, 1);
-     //   calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, -1);
-        int lastDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-        int index = dayOfWeek - 1;
-        for (int day = 1; day <= lastDayOfMonth; day++) {
-            arrayList.add(index, Integer.toString(day));
-            index++;
-        }
-
-        return arrayList;
-
+        fragmentTransaction.commit();
     }
 
     @Override
